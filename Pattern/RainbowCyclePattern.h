@@ -11,15 +11,11 @@
 #include "../NeopixelUtils.h"
 class RainbowCyclePattern {
 public:
-	RainbowCyclePattern(NeopixelUtils  * neopixelUtils);
-	virtual ~RainbowCyclePattern();
-	void show(int speedDelay);
-	void showExample();
-	void stop();
+	static void show();
+	static void setup(int);
 private:
-	byte *  wheel(byte WheelPos);
-	NeopixelUtils * neoPixelUtils;
-	bool isStart;
+	static byte *  wheel(byte WheelPos);
+	static int speedDelay;
 };
 
 #endif

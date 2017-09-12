@@ -7,40 +7,35 @@
 
 #include "SnowSparklePattern.h"
 #include "../WifiController.h"
+#include "../NeopixelUtils.h"
+#include "../TaskManager.h"
 
-SnowSparklePattern::SnowSparklePattern(NeopixelUtils * neoPixelUtils) {
-	this->neoPixelUtils = neoPixelUtils;
-	this->numLED = neoPixelUtils->getNumLED();
-	this->isStart = false;
+int SnowSparklePattern::SparkleDelay = 10;
+int SnowSparklePattern::minSpeedDelay = 100;
+int SnowSparklePattern::maxSpeedDelay = 1000;
+void SnowSparklePattern::show() {
+	int SpeedDelay = random(minSpeedDelay, maxSpeedDelay);
+	NeopixelUtils::setAll(*WifiController::redInput,
+			*WifiController::greenInput, *WifiController::blueInput);
+	int Pixel = random(NeopixelUtils::getNumLED());
+	NeopixelUtils::setPixel(Pixel, 0xff, 0xff, 0xff);
+	NeopixelUtils::showStrip();
+	TaskManager::refreshLEDTask->delay(SparkleDelay);
+	NeopixelUtils::setPixel(Pixel, *WifiController::redInput,
+			*WifiController::greenInput, *WifiController::blueInput);
+	NeopixelUtils::showStrip();
+	TaskManager::refreshLEDTask->delay(SpeedDelay);
 }
 
-SnowSparklePattern::~SnowSparklePattern() {
-	// TODO Auto-generated destructor stub
+void SnowSparklePattern::setup(int SparkleDelay, int minSpeedDelay,
+		int maxSpeedDelay) {
+	SnowSparklePattern::SparkleDelay = SparkleDelay;
+	SnowSparklePattern::minSpeedDelay = minSpeedDelay;
+	SnowSparklePattern::maxSpeedDelay = maxSpeedDelay;
 }
 
-void SnowSparklePattern::show(byte red, byte green, byte blue, int SparkleDelay,
-		int SpeedDelay) {
-	isStart = true;
-	WifiController::handleClient();
-	neoPixelUtils->setAll(red, green, blue);
-	int Pixel = random(numLED);
-	neoPixelUtils->setPixel(Pixel, 0xff, 0xff, 0xff);
-	neoPixelUtils->showStrip();
-	delay(SparkleDelay);
-	neoPixelUtils->setPixel(Pixel, red, green, blue);
-	neoPixelUtils->showStrip();
-	delay(SpeedDelay);
+void SnowSparklePattern::resetToDefaultColor(){
+	*WifiController::redInput = 10;
+	*WifiController::greenInput = 10;
+	*WifiController::blueInput = 10;
 }
-
-void SnowSparklePattern::showExample() {
-	for (int i = 0; i < 20; i++) {
-		if(!isStart)
-			break;
-		show(0x10, 0x10, 0x10, 20, random(100, 1000));
-	}
-}
-
-void SnowSparklePattern::stop(){
-	isStart = false;
-}
-

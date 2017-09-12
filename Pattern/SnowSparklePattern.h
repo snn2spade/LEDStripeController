@@ -11,15 +11,13 @@
 #include "../NeopixelUtils.h"
 class SnowSparklePattern {
 public:
-	SnowSparklePattern(NeopixelUtils * neoPixelUtils);
-	virtual ~SnowSparklePattern();
-	void show(byte red, byte green, byte blue, int SparkleDelay, int SpeedDelay);
-	void showExample();
-	void stop();
+	static void show();
+	static void setup(int,int,int);
+	static void resetToDefaultColor();
 private:
-	NeopixelUtils * neoPixelUtils;
-	int numLED;
-	bool isStart;
+	static int SparkleDelay;
+	static int minSpeedDelay;
+	static int maxSpeedDelay;
 };
 
 #endif /* SNOWSPARKLEPATTERN_H_ */

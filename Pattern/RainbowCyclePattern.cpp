@@ -7,32 +7,25 @@
 
 #include "RainbowCyclePattern.h"
 #include "../WifiController.h"
+#include "../NeopixelUtils.h"
+#include "../TaskManager.h"
 
-RainbowCyclePattern::RainbowCyclePattern(NeopixelUtils * neoPixelUtils) {
-	this->neoPixelUtils = neoPixelUtils;
-	this->isStart = false;
-}
-
-RainbowCyclePattern::~RainbowCyclePattern() {
-	// TODO Auto-generated destructor stub
-}
-
-void RainbowCyclePattern::show(int speedDelay) {
-	isStart = true;
+int RainbowCyclePattern::speedDelay = 100;
+int jSize = 256 * 2;
+int jIndex = 0;
+void RainbowCyclePattern::show() {
 	byte *c;
-	uint16_t i, j;
-
-	for (j = 0; j < 256 * 2; j++) { // 5 cycles of all colors on wheel
-		if (!isStart)
-			break;
-		WifiController::handleClient();
-		for (i = 0; i < neoPixelUtils->getNumLED(); i++) {
-			c = wheel(((i * 256 / neoPixelUtils->getNumLED()) + j) & 255);
-			neoPixelUtils->setPixel(i, *c, *(c + 1), *(c + 2));
-		}
-		neoPixelUtils->showStrip();
-		delay(speedDelay);
+	uint16_t i;
+	if (jIndex == 256 * 2) {
+		jIndex = 0;
 	}
+	for (i = 0; i < NeopixelUtils::getNumLED(); i++) {
+		c = wheel(((i * 256 / NeopixelUtils::getNumLED()) + jIndex) & 255);
+		NeopixelUtils::setPixel(i, *c, *(c + 1), *(c + 2));
+	}
+	NeopixelUtils::showStrip();
+	TaskManager::refreshLEDTask->delay(speedDelay);
+	jIndex++;
 }
 
 byte * RainbowCyclePattern::wheel(byte WheelPos) {
@@ -56,11 +49,7 @@ byte * RainbowCyclePattern::wheel(byte WheelPos) {
 
 	return c;
 }
-
-void RainbowCyclePattern::showExample() {
-	show(20);
-}
-void RainbowCyclePattern::stop() {
-	isStart = false;
+void RainbowCyclePattern::setup(int speedDelay) {
+	RainbowCyclePattern::speedDelay = speedDelay;
 }
 

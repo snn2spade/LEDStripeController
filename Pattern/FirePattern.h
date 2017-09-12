@@ -11,16 +11,11 @@
 #include "../NeopixelUtils.h"
 class FirePattern {
 public:
-	FirePattern(NeopixelUtils  * neopixelUtils);
-	virtual ~FirePattern();
-	void show(int Cooling, int Sparking, int SpeedDelay);
-	void showExample();
-	void stop();
+	static void show();
+	static void setup(int,int,int);
 private:
-	NeopixelUtils * neoPixelUtils;
-	void setPixelHeatColor(int Pixel, byte temperature);
-	int numLED;
-	bool isStart;
+	static int Cooling, Sparking, SpeedDelay;
+	static void setPixelHeatColor(int Pixel, byte temperature);
 };
 
 #endif

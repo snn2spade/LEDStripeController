@@ -7,27 +7,19 @@
 
 #include "FirePattern.h"
 #include "../WifiController.h"
+#include "../NeopixelUtils.h"
+#include "../TaskManager.h"
 
-
-FirePattern::FirePattern(NeopixelUtils * neoPixelUtils) {
-	this->neoPixelUtils = neoPixelUtils;
-	this->numLED = neoPixelUtils->getNumLED();
-	this->isStart = false;
-}
-
-FirePattern::~FirePattern() {
-	// TODO Auto-generated destructor stub
-}
-
-void FirePattern::show(int Cooling, int Sparking, int SpeedDelay) {
-	isStart = true;
-	WifiController::handleClient();
+int FirePattern::Cooling = 20;
+int FirePattern::Sparking = 20;
+int FirePattern::SpeedDelay = 50;
+void FirePattern::show() {
 	static byte heat[60];
 	int cooldown;
 
 	// Step 1.  Cool down every cell a little
-	for (int i = 0; i < numLED; i++) {
-		cooldown = random(0, ((Cooling * 10) / numLED) + 2);
+	for (int i = 0; i < NeopixelUtils::getNumLED(); i++) {
+		cooldown = random(0, ((Cooling * 10) / NeopixelUtils::getNumLED()) + 2);
 
 		if (cooldown > heat[i]) {
 			heat[i] = 0;
@@ -37,7 +29,7 @@ void FirePattern::show(int Cooling, int Sparking, int SpeedDelay) {
 	}
 
 	// Step 2.  Heat from each cell drifts 'up' and diffuses a little
-	for (int k = numLED - 1; k >= 2; k--) {
+	for (int k = NeopixelUtils::getNumLED() - 1; k >= 2; k--) {
 		heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2]) / 3;
 	}
 
@@ -49,12 +41,12 @@ void FirePattern::show(int Cooling, int Sparking, int SpeedDelay) {
 	}
 
 	// Step 4.  Convert heat to LED colors
-	for (int j = 0; j < numLED; j++) {
+	for (int j = 0; j < NeopixelUtils::getNumLED(); j++) {
 		setPixelHeatColor(j, heat[j]);
 	}
 
-	neoPixelUtils->showStrip();
-	delay(SpeedDelay);
+	NeopixelUtils::showStrip();
+	TaskManager::refreshLEDTask->delay(SpeedDelay);
 }
 
 void FirePattern::setPixelHeatColor(int Pixel, byte temperature) {
@@ -67,23 +59,16 @@ void FirePattern::setPixelHeatColor(int Pixel, byte temperature) {
 
 	// figure out which third of the spectrum we're in:
 	if (t192 > 0x80) {                     // hottest
-		neoPixelUtils->setPixel(Pixel, 255, 255, heatramp);
+		NeopixelUtils::setPixel(Pixel, 255, 255, heatramp);
 	} else if (t192 > 0x40) {             // middle
-		neoPixelUtils->setPixel(Pixel, 255, heatramp, 0);
+		NeopixelUtils::setPixel(Pixel, 255, heatramp, 0);
 	} else {                               // coolest
-		neoPixelUtils->setPixel(Pixel, heatramp, 0, 0);
+		NeopixelUtils::setPixel(Pixel, heatramp, 0, 0);
 	}
 }
-
-void FirePattern::showExample() {
-	for (int i = 0; i < 200; i++) {
-		if (!isStart)
-			break;
-		show(20, 50, 50);
-	}
-}
-
-void FirePattern::stop() {
-	isStart = false;
+void FirePattern::setup(int Cooling, int Sparking, int SpeedDelay) {
+	FirePattern::Cooling = Cooling;
+	FirePattern::Sparking = Sparking;
+	FirePattern::SpeedDelay = SpeedDelay;
 }
 

@@ -9,17 +9,13 @@
 #define COLORWAVEPATTERN_H_
 
 #include "../NeopixelUtils.h"
+#include <TaskScheduler.h>
 class ColorWavePattern {
 public:
-	ColorWavePattern(NeopixelUtils * neoPixelUtils);
-	virtual ~ColorWavePattern();
-	void show(byte red, byte green, byte blue, int WaveDelay);
-	void showExample();
-	void stop();
+	static void setup(int waveDelay);
+	static void show();
 private:
-	int numLED;
-	NeopixelUtils * neoPixelUtils;
-	bool isStart;
+	static int waveDelay;
 };
 
 #endif /* COLORWAVEPATTERN_H_ */

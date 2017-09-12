@@ -1,30 +1,20 @@
+#include "TaskManager.h"
 #include "LEDController.h"
 #include "WifiController.h"
 
-LEDController ledController = LEDController();
-
 void setup() {
 	Serial.begin(115200);
+	Serial.println("\n\n\n");
+	Serial.println("STATE: TaskManager setup");
+	TaskManager::setup();
+	Serial.println("STATE: WIFI Controller setup");
 	WifiController::setup();
-	ledController.setup();
+	Serial.println("STATE: LED Controller setup");
+	LEDController::setup();
+	Serial.println("INFO: --- setup completed ---");
 }
 
-int modeState = -1;
 void loop() {
-	WifiController::handleClient();
-	if(*(WifiController::isStartInput)){
-		if(modeState != *(WifiController::modeInput)){
-			modeState = *(WifiController::modeInput);
-			Serial.print("Mode was changed to: ");
-			Serial.println(modeState);
-			switch(*(WifiController::modeInput)){
-				case(0):
-					ledController.playExample();
-					break;
-			}
-		}
-	}else{
-		ledController.stop();
-	}
+	TaskManager::runner->execute();
 }
 

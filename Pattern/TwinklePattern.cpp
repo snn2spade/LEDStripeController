@@ -7,44 +7,35 @@
 
 #include "TwinklePattern.h"
 #include "../WifiController.h"
+#include "../NeopixelUtils.h"
+#include "../TaskManager.h"
 
-TwinklePattern::TwinklePattern(NeopixelUtils * neoPixelUtils) {
-	this->neoPixelUtils = neoPixelUtils;
-	this->numLED = neoPixelUtils->getNumLED();
-	this->isStart = false;
-}
+int TwinklePattern::Count = 20;
+int TwinklePattern::SpeedDelay = 100;
+bool TwinklePattern::OnlyOne = false;
 
-TwinklePattern::~TwinklePattern() {
-	// TODO Auto-generated destructor stub
-}
+int countIndex = 0;
+void TwinklePattern::show() {
 
-void TwinklePattern::show(int Count, int SpeedDelay, bool OnlyOne) {
-	isStart = true;
-	neoPixelUtils->setAll(0, 0, 0);
-	for (int i = 0; i < Count; i++) {
-		if(!isStart)
-			break;
-		WifiController::handleClient();
-		neoPixelUtils->setPixel(random(numLED), random(0, 255), random(0, 255),
-				random(0, 255));
-		neoPixelUtils->showStrip();
-		delay(SpeedDelay);
+	if (countIndex == Count) {
+		NeopixelUtils::setAll(0, 0, 0);
+		countIndex = 0;
+	} else {
+		NeopixelUtils::setPixel(random(NeopixelUtils::getNumLED()),
+				random(0, 255), random(0, 255), random(0, 255));
+		NeopixelUtils::showStrip();
+		TaskManager::refreshLEDTask->delay(SpeedDelay);
 		if (OnlyOne) {
-			neoPixelUtils->setAll(0, 0, 0);
+			NeopixelUtils::setAll(0, 0, 0);
 		}
-	}
-
-	delay(SpeedDelay);
-}
-
-void TwinklePattern::showExample() {
-	for (int i = 0; i < 5; i++) {
-		if(!isStart)
-			break;
-		show(20, 100, false);
+		countIndex++;
 	}
 }
-void TwinklePattern::stop(){
-	isStart =false;
+
+void TwinklePattern::setup(int Count, int SpeedDelay) {
+	TwinklePattern::Count = Count;
+	TwinklePattern::SpeedDelay = SpeedDelay;
+	TwinklePattern::OnlyOne = false;
+
 }
 

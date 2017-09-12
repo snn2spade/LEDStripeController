@@ -84,12 +84,12 @@
                 <div class='card-block'>
                   <form action='./setcolor' method='get' class='form-horizontal'>
                     <div class='list-group'>
-                      <a href='#' class='list-group-item active'>Play Example</a>
-                      <a href='#' class='list-group-item list-group-item-action disabled'>Color Wipe</a>
-                      <a href='#' class='list-group-item list-group-item-action disabled'>Set Fire to the rain!</a>
-                      <a href='#' class='list-group-item list-group-item-action disabled'>Rainbow cycle</a>
-                      <a href='#' class='list-group-item list-group-item-action disabled'>Snow sparkle</a>
-                      <a href='#' class='list-group-item list-group-item-action disabled'>Twinkle</a>
+                      <input id='modeInput' type='hidden' name='mode' value='1'>
+                      <a href='#' id='mode1' class='list-group-item list-group-item-action '>Color Wipe</a>
+                      <a href='#' id='mode2' class='list-group-item list-group-item-action '>Set Fire to the rain!</a>
+                      <a href='#' id='mode3' class='list-group-item list-group-item-action '>Rainbow cycle</a>
+                      <a href='#' id='mode4' class='list-group-item list-group-item-action '>Snow sparkle</a>
+                      <a href='#' id='mode5' class='list-group-item list-group-item-action '>Twinkle</a>
                     </div>
                   </form>
                 </div>
@@ -129,6 +129,28 @@
     $('form').submit(function () {
       //alert('Send completed.');
     });
+    window.onload = function(){
+      let mode = $('#modeInput').val();
+      mode = parseInt(mode);
+      console.log("mode:"+mode)
+      switch(mode){
+        case 1:
+          $('#mode1').addClass('active');
+          break;
+        case 2:
+          $('#mode2').addClass('active');
+          break;
+        case 3:
+          $('#mode3').addClass('active');
+          break;
+        case 4:
+          $('#mode4').addClass('active');
+          break;
+        case 5:
+          $('#mode5').addClass('active');
+          break;
+      }
+    };
   </script>
 </body>
 </html>

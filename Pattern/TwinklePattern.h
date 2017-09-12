@@ -11,15 +11,11 @@
 #include "../NeopixelUtils.h"
 class TwinklePattern {
 public:
-	TwinklePattern(NeopixelUtils * neoPixelUtils);
-	virtual ~TwinklePattern();
-	void show(int Count, int SpeedDelay, bool OnlyOne);
-	void showExample();
-	void stop();
+	static void show();
+	static void setup(int,int);
 private:
-	int numLED;
-	NeopixelUtils * neoPixelUtils;
-	bool isStart;
+	static int Count, SpeedDelay;
+	static bool OnlyOne;
 };
 
 #endif /* PATTERN_TWINKLEPATTERN_H_ */

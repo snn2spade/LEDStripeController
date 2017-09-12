@@ -6,50 +6,46 @@
  */
 
 #include "LEDController.h"
+#include "TaskManager.h"
+#include "NeopixelUtils.h"
+#include "Pattern/ColorWavePattern.h"
+#include "Pattern/FirePattern.h"
+#include "Pattern/RainbowCyclePattern.h"
+#include "Pattern/SnowSparklePattern.h"
+#include "Pattern/TwinklePattern.h"
 
-bool isStart = false;
-LEDController::LEDController() {
-	// Parameter 1 = number of pixels in strip
-	// Parameter 2 = pin number (most are valid)
-	// Parameter 3 = pixel type flags, add together as needed:
-	//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
-	//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
-	//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
-	//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
-	strip = new Adafruit_NeoPixel(NUM_LEDS, PIN,
-	NEO_GRB + NEO_KHZ800);
-	// define neopixelUtils
-	neopixelUtils = new NeopixelUtils(NUM_LEDS, strip);
-	// define pattern
-	rainbowCycleMode = new RainbowCyclePattern(neopixelUtils);
-	fireMode = new FirePattern(neopixelUtils);
-	colorWaveMode = new ColorWavePattern(neopixelUtils);
-	snowSparkleMode = new SnowSparklePattern(neopixelUtils);
-	twinklePatternMode = new TwinklePattern(neopixelUtils);
-}
-
-LEDController::~LEDController() {
-	// TODO Auto-generated destructor stub
-}
 void LEDController::setup() {
-	strip->begin();
-	strip->show(); // Initialize all pixels to 'off'
-	strip->setBrightness(NUM_LEDS);
+	NeopixelUtils::getStrip()->begin();
+	NeopixelUtils::getStrip()->show();
+	NeopixelUtils::getStrip()->setBrightness(NeopixelUtils::getNumLED());
 }
 
-void LEDController::playExample() {
-	rainbowCycleMode->showExample();
-	fireMode->showExample();
-	colorWaveMode->showExample();
-	snowSparkleMode->showExample();
-	twinklePatternMode->showExample();
+void LEDController::stop() {
+	TaskManager::refreshLEDTask->disable();
+	NeopixelUtils::setAll(0x00, 0x00, 0x00);
 }
 
-void LEDController::stop(){
-	rainbowCycleMode->stop();
-	fireMode->stop();
-	colorWaveMode->stop();
-	snowSparkleMode->stop();
-	twinklePatternMode->stop();
-	neopixelUtils->setAll(0x00, 0x00, 0x00);
+void LEDController::start() {
+	TaskManager::refreshLEDTask->enable();
 }
+
+void LEDController::setMode(int mode) {
+	switch (mode) {
+	case 1:
+		TaskManager::refreshLEDTask->setCallback(&ColorWavePattern::show);
+		break;
+	case 2:
+		TaskManager::refreshLEDTask->setCallback(&FirePattern::show);
+		break;
+	case 3:
+		TaskManager::refreshLEDTask->setCallback(&RainbowCyclePattern::show);
+		break;
+	case 4:
+		TaskManager::refreshLEDTask->setCallback(&SnowSparklePattern::show);
+		break;
+	case 5:
+		TaskManager::refreshLEDTask->setCallback(&TwinklePattern::show);
+		break;
+	}
+}
+

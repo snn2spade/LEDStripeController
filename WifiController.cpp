@@ -7,18 +7,22 @@
 
 #include "WifiController.h"
 #include "HTMLGenerator.h"
+#include "Pattern/ColorWavePattern.h"
+#include "Pattern/FirePattern.h"
+#include "Pattern/RainbowCyclePattern.h"
+#include "Pattern/SnowSparklePattern.h"
+#include "Pattern/TwinklePattern.h"
 
 MDNSResponder mdns;
 String webPage;
 ESP8266WebServer * WifiController::server = new ESP8266WebServer(80);
-int * WifiController::redInput = new int(0);
-int * WifiController::greenInput = new int(0);
-int * WifiController::blueInput = new int(0);
+int * WifiController::redInput = new int(11);
+int * WifiController::greenInput = new int(11);
+int * WifiController::blueInput = new int(128);
 int * WifiController::modeInput = new int(0);
 bool * WifiController::isStartInput = new bool(false);
 void WifiController::setup() {
 	// STATE: wait for station mode connection
-	Serial.println("\n\n\n");
 	Serial.print("STATE: establish station mode connection ");
 	WiFi.begin("wongpian  2.4G", "***REMOVED***");
 	//WiFi.begin("Earth's wifi 2.4 Ghz", "***REMOVED***");
@@ -54,12 +58,11 @@ void WifiController::setup() {
 }
 
 void WifiController::initWebServerAPI() {
-	WifiController::server->on("/",
-			[]() {
-				Serial.println("INFO: client has request for Homepage");
-				HTMLGenerator::sendHomepage();
-				Serial.println("INFO: already send response for Homepage");
-			});
+	WifiController::server->on("/", []() {
+		Serial.println("INFO: client has request for Homepage");
+		HTMLGenerator::sendHomepage();
+		Serial.println("INFO: already send response for Homepage");
+	});
 	WifiController::server->on("/setcolor",
 			[]() {
 				*WifiController::redInput = WifiController::server->arg("red").toInt();
@@ -80,10 +83,44 @@ void WifiController::initWebServerAPI() {
 		*WifiController::isStartInput = false;
 		WifiController::server->send(200, "text/html", "stop completed");
 	});
-//	server->on("/test", []() {
-//		std::string html = HTMLGenerator::getHTML();
-//		server->send(200, "text/html", html);
-//});
+	WifiController::server->on("/setupmode1", []() {
+		int delay = WifiController::server->arg("delay").toInt();
+		ColorWavePattern::setup(delay);
+		WifiController::server->send(200, "text/html", "setup completed");
+	});
+	WifiController::server->on("/setupmode2", []() {
+		int cooling = WifiController::server->arg("cooling").toInt();
+		int sparking = WifiController::server->arg("sparking").toInt();
+		int delay = WifiController::server->arg("delay").toInt();
+		FirePattern::setup(cooling,sparking,delay);
+		WifiController::server->send(200, "text/html", "setup completed");
+	});
+	WifiController::server->on("/setupmode3", []() {
+		int delay = WifiController::server->arg("delay").toInt();
+		RainbowCyclePattern::setup(delay);
+		WifiController::server->send(200, "text/html", "setup completed");
+	});
+	WifiController::server->on("/setupmode4", []() {
+		int sparkle = WifiController::server->arg("sparkle").toInt();
+		int minDelay = WifiController::server->arg("mindelay").toInt();
+		int maxDelay = WifiController::server->arg("maxdelay").toInt();
+		SnowSparklePattern::setup(sparkle,minDelay,maxDelay);
+		WifiController::server->send(200, "text/html", "setup completed");
+	});
+	WifiController::server->on("/setupmode5", []() {
+		int count = WifiController::server->arg("count").toInt();
+		int delay = WifiController::server->arg("delay").toInt();
+		TwinklePattern::setup(count,delay);
+		WifiController::server->send(200, "text/html", "setup completed");
+	});
+	WifiController::server->on("/resetcolor", []() {
+		switch(*modeInput){
+			case 4:
+				SnowSparklePattern::resetToDefaultColor();
+				break;
+		}
+		WifiController::server->send(200, "text/html", "reset color completed");
+	});
 }
 
 void WifiController::handleClient() {
