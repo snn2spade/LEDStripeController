@@ -19,7 +19,7 @@ ESP8266WebServer * WifiController::server = new ESP8266WebServer(80);
 int * WifiController::redInput = new int(11);
 int * WifiController::greenInput = new int(11);
 int * WifiController::blueInput = new int(128);
-int * WifiController::modeInput = new int(0);
+int * WifiController::modeInput = new int(1);
 bool * WifiController::isStartInput = new bool(false);
 void WifiController::setup() {
 	// STATE: wait for station mode connection
@@ -68,20 +68,20 @@ void WifiController::initWebServerAPI() {
 				*WifiController::redInput = WifiController::server->arg("red").toInt();
 				*WifiController::greenInput = WifiController::server->arg("green").toInt();
 				*WifiController::blueInput = WifiController::server->arg("blue").toInt();
-				WifiController::server->send(200, "text/html", "set color completed");
+				WifiController::server->send(200, "text/html", "Set color completed");
 			});
 	WifiController::server->on("/mode",
 			[]() {
 				*WifiController::modeInput = WifiController::server->arg("mode").toInt();
-				WifiController::server->send(200, "text/html", "set mode completed");
+				HTMLGenerator::sendHomepage();
 			});
 	WifiController::server->on("/start", []() {
 		*WifiController::isStartInput = true;
-		WifiController::server->send(200, "text/html", "start completed");
+		HTMLGenerator::sendHomepage();
 	});
 	WifiController::server->on("/stop", []() {
 		*WifiController::isStartInput = false;
-		WifiController::server->send(200, "text/html", "stop completed");
+		HTMLGenerator::sendHomepage();
 	});
 	WifiController::server->on("/setupmode1", []() {
 		int delay = WifiController::server->arg("delay").toInt();

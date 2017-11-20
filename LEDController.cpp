@@ -13,6 +13,7 @@
 #include "Pattern/RainbowCyclePattern.h"
 #include "Pattern/SnowSparklePattern.h"
 #include "Pattern/TwinklePattern.h"
+#include "Pattern/SolidPattern.h"
 
 void LEDController::setup() {
 	NeopixelUtils::getStrip()->begin();
@@ -45,6 +46,9 @@ void LEDController::setMode(int mode) {
 		break;
 	case 5:
 		TaskManager::refreshLEDTask->setCallback(&TwinklePattern::show);
+		break;
+	case 6:
+		TaskManager::refreshLEDTask->setCallback(&SolidPattern::show);
 		break;
 	}
 }
