@@ -15,15 +15,21 @@
 
 class WifiController {
 public:
-	static void setup();
-	static void initWebServerAPI();
+	static void startAPMode();
+	static void startSTAMode(String,String);
+	static void setupClientHandler();
 	static void handleClient();
+	static bool * isAPMode;
 	static int * redInput;
 	static int * greenInput;
 	static int * blueInput;
 	static int * modeInput;
 	static bool * isStartInput;
 	static ESP8266WebServer * server;
+private:
+	static void stopAPMode();
+	static void stopSTAMode();
+	static void initClientHandler();
 };
 
 #endif /* WIFICONTROLLER_H_ */

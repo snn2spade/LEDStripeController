@@ -8,7 +8,9 @@ void setup() {
 	Serial.println("STATE: TaskManager setup");
 	TaskManager::setup();
 	Serial.println("STATE: WIFI Controller setup");
-	WifiController::setup();
+    WifiController::startAPMode();
+	Serial.println("STATE: Client handler setup");
+    WifiController::setupClientHandler();
 	Serial.println("STATE: LED Controller setup");
 	LEDController::setup();
 	Serial.println("INFO: --- setup completed ---");
