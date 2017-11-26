@@ -16,7 +16,7 @@
 class WifiController {
 public:
 	static void startAPMode();
-	static void startSTAMode(String,String);
+	static bool startSTAMode(String,String);
 	static void setupClientHandler();
 	static void handleClient();
 	static bool * isAPMode;

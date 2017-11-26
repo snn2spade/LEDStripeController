@@ -32,38 +32,43 @@ void WifiController::setupClientHandler(){
 
 void WifiController::startAPMode() {
 	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWrite(LED_BUILTIN, HIGH);
 	Serial.println("STATE: establish access point mode connection ");
-	WiFi.softAP("Led Controller");
-	IPAddress myIP = WiFi.softAPIP();
+	WiFi.mode(WIFI_AP_STA);
+	WiFi.softAP("Led Controller","password");
 	Serial.print("AP IP address: ");
-	Serial.println(myIP);
+	Serial.println(WiFi.softAPIP());
 }
 
 void WifiController::stopAPMode(){
 	WiFi.softAPdisconnect();
-	WiFi.disconnect();
+//	WiFi.disconnect();
 	WiFi.mode(WIFI_STA);
 	delay(100);
 }
 
 void WifiController::stopSTAMode(){
 	WiFi.disconnect();
-	WiFi.mode(WIFI_AP);
+	WiFi.mode(WIFI_AP_STA);
 	delay(100);
 }
 
-void WifiController::startSTAMode(String ssid,String pass){
-	Serial.println("STATE: STOP Access Point mode");
-	WifiController::stopAPMode();
+bool WifiController::startSTAMode(String ssid,String pass){
+	if(WiFi.isConnected()){
+		Serial.print("Already connected to Station mode");
+		return true;
+	}
 	Serial.println("STATE: establish station mode connection ");
 	Serial.println("STATE: try to connect ssid: '"+ssid+"', pass:'"+pass+"'");
 	WiFi.begin(ssid.c_str(),pass.c_str());
-	//WiFi.begin("Earth's wifi 2.4 Ghz", "***REMOVED***");
+//	WiFi.begin("Earth's wifi 2.4 Ghz", "***REMOVED***");
+//	WiFi.begin("wongpian2.4G","***REMOVED***");
 	int retryCount = 0;
 	while(WiFi.status() != WL_CONNECTED){
 		digitalWrite(LED_BUILTIN, LOW);
-		delay(500);
+		delay(250);
 		digitalWrite(LED_BUILTIN, HIGH);
+		delay(250);
 		retryCount++;
 		if (WiFi.status() == WL_NO_SSID_AVAIL) {
 			Serial.print("SSID is cannot be reached ");
@@ -71,43 +76,52 @@ void WifiController::startSTAMode(String ssid,String pass){
 			Serial.print("network password is incorrect ");
 		}
 		else{
-			Serial.print("Unknown status but not yet connected ");
+			Serial.print("Unknown status but not yet connected (");
+			Serial.print(WiFi.status());
+			Serial.print(") ");
 		}
 		Serial.println(retryCount);
-		if(retryCount > 25 || WiFi.status() == WL_CONNECT_FAILED){
+		if(retryCount > 50 || WiFi.status() == WL_CONNECT_FAILED){
 			Serial.println("STATE: Connection Time Out");
-			Serial.println("STATE: STOP Station mode");
-			WifiController::stopSTAMode();
-			Serial.println("STATE: Start Access Point mode");
-			WifiController::startAPMode();
-			digitalWrite(LED_BUILTIN, LOW);
-			return;
+			digitalWrite(LED_BUILTIN, HIGH);
+			return false;
 		}
 
 	}
-	digitalWrite(LED_BUILTIN, HIGH);
-	isAPMode = new bool(false);
+	digitalWrite(LED_BUILTIN, LOW);
 	Serial.println("STATE: Connected to Local network, IP address: ");
 	Serial.println(WiFi.localIP());
 
 	Serial.print("-- server has started on http://");
 	Serial.println(WiFi.localIP());
+	return true;
 }
 
 void WifiController::initClientHandler() {
 	WifiController::server->on("/connect", []() {
 		String ssid = WifiController::server->arg("ssid");
 		String pass = WifiController::server->arg("pass");
-		WifiController::startSTAMode(ssid,pass);
-		WifiController::server->send(200, "text/html", "Try connecting local network please try again in 15 Second.");
+		bool conRes = 	WifiController::startSTAMode(ssid,pass);
+		if(conRes){
+			String res = "Connected, retrieve IP Address: ";
+			res += WiFi.localIP().toString();
+			WifiController::server->send(200, "text/html", res);
+			// Serial.println("STATE: Stop AP Mode");
+			// WifiController::stopAPMode();
+		}
+		else{
+			WifiController::server->send(200, "text/html", "Cannot establish connection.");
+		}
 	});
 	WifiController::server->on("/networkinfo", []() {
 		if(*WifiController::isAPMode)
 		{
-			WifiController::server->send(200, "text/html", "Connection mode: Access Point");
+			WifiController::server->send(200, "text/html", "Connection mode: Only Access Point");
 		}
 		else{
-			WifiController::server->send(200, "text/html", "Connection mode: Station");
+			String res = "Connection mode: Access Point And Station, Station IP address: ";
+			res += WiFi.localIP().toString();
+			WifiController::server->send(200, "text/html", res);
 		}
 	});
 	WifiController::server->on("/", []() {

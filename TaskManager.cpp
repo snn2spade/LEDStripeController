@@ -20,6 +20,7 @@ void TaskManager::handleClientRequest() {
 }
 
 void TaskManager::handleStateChange() {
+	// manage LED mode
 	if (*(WifiController::isStartInput)) {
 		if (modeState != *(WifiController::modeInput)) {
 			modeState = *(WifiController::modeInput);
@@ -30,6 +31,13 @@ void TaskManager::handleStateChange() {
 		LEDController::start();
 	} else {
 		LEDController::stop();
+	}
+	//check connection status
+	if(WiFi.isConnected()){
+		WifiController::isAPMode = new bool(false);
+	}
+	else{
+		WifiController::isAPMode = new bool(true);
 	}
 }
 void TaskManager::setup() {

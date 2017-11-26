@@ -37,6 +37,13 @@ void HTMLGenerator::sendHomepage() {
 	else{
 		startInput = "<span style='color:red;'>STOP</span>";
 	}
+	std::string connectionMode;
+	if(*WifiController::isAPMode){
+		connectionMode = "AP Mode";
+	}
+	else{
+		connectionMode = "AP & Station Mode";
+	}
 	// Retrieve current color
 	std::string redInput = HTMLGenerator::intToStr(*(WifiController::redInput));
 	std::string blueInput = HTMLGenerator::intToStr(*(WifiController::blueInput));
@@ -51,8 +58,6 @@ void HTMLGenerator::sendHomepage() {
 	res += "	<script src='https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js' integrity='sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb' crossorigin='anonymous'></script>	";
 	res += "	<script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js' integrity='sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn' crossorigin='anonymous'></script>	";
 	res += "		";
-	res += "	<link href='https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css' rel='stylesheet'>	";
-	res += "	<script src='https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js'></script>	";
 	res += "	<title>LED Controller WS2812B</title>	";
 	res += "		";
 	res += "	</head>	";
@@ -60,7 +65,7 @@ void HTMLGenerator::sendHomepage() {
 	res += "	<div class='container'>	";
 	res += "	<div class='jumbtron'>	";
 	res += "	<h1 class='display-4'>WS2812B LED controller</h1>	";
-	res += "	<p class='lead'>LED Stripe controller on ESP8266</p>	";
+	res += "	<p class='lead'>LED Stripe controller on ESP8266 <span> | connection mode: "+connectionMode+"</span></p>	";
 	res += "	<hr class='my-4'>	";
 	res += "	</div>	";
 	res += "	<div class='row'>	";
