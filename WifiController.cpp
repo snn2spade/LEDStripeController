@@ -61,8 +61,6 @@ bool WifiController::startSTAMode(String ssid,String pass){
 	Serial.println("STATE: establish station mode connection ");
 	Serial.println("STATE: try to connect ssid: '"+ssid+"', pass:'"+pass+"'");
 	WiFi.begin(ssid.c_str(),pass.c_str());
-//	WiFi.begin("Earth's wifi 2.4 Ghz", "***REMOVED***");
-//	WiFi.begin("wongpian2.4G","***REMOVED***");
 	int retryCount = 0;
 	while(WiFi.status() != WL_CONNECTED){
 		digitalWrite(LED_BUILTIN, LOW);
